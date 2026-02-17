@@ -12,7 +12,6 @@ const Card = ({ card, listId, boardId, onClick }) => {
     Low: 'bg-emerald-100 text-emerald-600 border-emerald-200',
   };
 
-  // Helper to format the time display on the card face
   const formatTime = (seconds) => {
     if (!seconds) return null;
     const mins = Math.floor(seconds / 60);
@@ -21,12 +20,25 @@ const Card = ({ card, listId, boardId, onClick }) => {
 
   return (
     <motion.div
-      layoutId={card.id} // Smooth transition if we add drag and drop later
+      layoutId={card.id}
       onClick={onClick}
       whileHover={{ y: -4, boxShadow: "0 12px 20px -5px rgba(0, 0, 0, 0.1)" }}
       whileTap={{ scale: 0.98 }}
-      className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-pointer group relative transition-shadow"
+      className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-pointer group relative transition-shadow overflow-hidden"
     >
+      {/* Visual Labels Row */}
+      {card.labels && card.labels.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-3">
+          {card.labels.map((label) => (
+            <div 
+              key={label.id} 
+              className={`h-1.5 w-8 rounded-full ${label.color} shadow-sm`} 
+              title={label.name}
+            />
+          ))}
+        </div>
+      )}
+
       {/* Top Row: Priority & Timer Indicator */}
       <div className="flex justify-between items-start mb-2">
         <div className={`text-[10px] font-bold px-2 py-0.5 rounded border ${priorityColors[card.priority]}`}>
@@ -46,9 +58,7 @@ const Card = ({ card, listId, boardId, onClick }) => {
 
       {/* Card Info/Badges */}
       <div className="flex items-center gap-3 text-slate-400">
-        {card.description && (
-          <AlignLeft size={14} className="text-slate-400" title="This card has a description." />
-        )}
+        {card.description && <AlignLeft size={14} title="Has description" />}
         
         {card.checklist?.length > 0 && (
           <div className={`flex items-center gap-1 text-[11px] font-bold px-1 rounded ${
@@ -63,23 +73,22 @@ const Card = ({ card, listId, boardId, onClick }) => {
 
         <div className="flex-1"></div>
         
-        {/* Delete Button with stopPropagation to avoid opening the modal */}
         <button 
           onClick={(e) => {
             e.stopPropagation(); 
-            if (window.confirm("Are you sure you want to delete this task?")) {
+            if (window.confirm("Delete this task?")) {
               deleteCard(boardId, listId, card.id);
             }
           }}
-          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1 hover:bg-red-50 rounded"
+          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1"
         >
           <Trash2 size={14} />
         </button>
       </div>
 
-      {/* Footer: User Avatar */}
+      {/* Footer Avatar */}
       <div className="mt-3 pt-3 border-t border-slate-50 flex justify-end">
-        <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-slate-200 to-slate-300 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-600 shadow-sm">
+        <div className="w-6 h-6 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-500">
           U
         </div>
       </div>
