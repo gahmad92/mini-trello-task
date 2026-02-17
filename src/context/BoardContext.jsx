@@ -79,12 +79,13 @@ export const BoardProvider = ({ children }) => {
         if (board.id === boardId) {
           return {
             ...board,
-            lists: board.list.map((l) =>
+            // Fixed: changed .list to .lists
+            lists: board.lists.map((l) =>
               l.id === listId ? { ...l, title: newTitle } : l,
             ),
           };
         }
-        return boards;
+        return board; // Fixed: return single 'board' object
       }),
     );
   };
@@ -114,20 +115,24 @@ export const BoardProvider = ({ children }) => {
       id: v4(),
       title: cardTitle,
       description: "",
-      priority: "Medium", // you can set low, medium, high
+      priority: "Medium",
       labels: [],
       checklist: [],
       createdAt: new Date().toISOString(),
       dueDate: null,
       timeLogged: 0,
       isTracking: false,
+      // Add this! It helps dnd logic identify the parent list easily
+      listId: listId,
     };
+
     setBoards((prev) =>
       prev.map((board) => {
         if (board.id === boardId) {
           return {
             ...board,
-            lists: board.list.map((list) =>
+            // Fixed: changed .list to .lists
+            lists: board.lists.map((list) =>
               list.id === listId
                 ? { ...list, cards: [...list.cards, newCard] }
                 : list,

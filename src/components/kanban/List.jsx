@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { MoreHorizontal, Plus, X, Trash2 } from 'lucide-react';
+import { Plus, X, Trash2 } from 'lucide-react';
 import { useBoard } from '../../context/BoardContext';
 import Card from './Card';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Droppable, Draggable } from '@hello-pangea/dnd';
 
 const List = ({ list, boardId, onCardClick }) => {
-  const { addCard, deleteList, renameList, setWIPLimit } = useBoard();
+  const { addCard, deleteList, renameList } = useBoard();
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [cardTitle, setCardTitle] = useState('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -31,7 +32,7 @@ const List = ({ list, boardId, onCardClick }) => {
   };
 
   return (
-    <div className={`flex flex-col min-w-[300px] max-w-[300px] max-h-full rounded-2xl transition-all duration-300 ${
+    <div className={`flex flex-col min-w-[300px] max-w-[300px] h-fit max-h-full rounded-2xl transition-all duration-300 ${
       isOverLimit ? 'bg-red-50 ring-2 ring-red-400 shadow-lg shadow-red-100' : 'bg-slate-100 border border-slate-200'
     }`}>
       
@@ -79,18 +80,43 @@ const List = ({ list, boardId, onCardClick }) => {
         </button>
       </div>
 
-      {/* --- CARDS CONTAINER --- */}
-      <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-3 custom-scrollbar min-h-[50px]">
-        {list.cards.map((card) => (
-          <Card 
-            key={card.id} 
-            card={card} 
-            listId={list.id} 
-            boardId={boardId} 
-            onClick={() => onCardClick(card)} // Passing the modal trigger down
-          />
-        ))}
-      </div>
+      {/* --- DRAGGABLE CARDS CONTAINER --- */}
+      <Droppable droppableId={list.id} type="card">
+        {(provided, snapshot) => (
+          <div
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+            className={`flex-1 overflow-y-auto px-3 pb-2 space-y-3 custom-scrollbar min-h-[100px] transition-colors duration-200 ${
+              snapshot.isDraggingOver ? 'bg-slate-200/50 rounded-lg' : ''
+            }`}
+          >
+            {list.cards.map((card, index) => (
+              <Draggable key={card.id} draggableId={card.id} index={index}>
+                {(provided, dragSnapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    style={{
+                      ...provided.draggableProps.style,
+                      // Prevents weird tilt on some browsers during drag
+                      userSelect: 'none'
+                    }}
+                  >
+                    <Card 
+                      card={card} 
+                      listId={list.id} 
+                      boardId={boardId} 
+                      onClick={() => onCardClick(card)} 
+                    />
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
 
       {/* --- ADD CARD FOOTER --- */}
       <div className="p-2">
@@ -106,7 +132,7 @@ const List = ({ list, boardId, onCardClick }) => {
               <textarea
                 autoFocus
                 placeholder="What needs to be done?"
-                className="w-full text-sm border-none focus:ring-0 resize-none p-0 h-16 text-slate-700 placeholder:text-slate-400"
+                className="w-full text-sm border-none focus:ring-0 resize-none p-0 h-16 text-slate-700 placeholder:text-slate-400 outline-none"
                 value={cardTitle}
                 onChange={(e) => setCardTitle(e.target.value)}
                 onKeyDown={(e) => {
