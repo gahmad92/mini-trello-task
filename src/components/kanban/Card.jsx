@@ -26,50 +26,62 @@ const Card = ({ card, listId, boardId, onClick }) => {
       whileTap={{ scale: 0.98 }}
       className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 cursor-pointer group relative transition-shadow overflow-hidden"
     >
-      {/* Visual Labels Row */}
-      {card.labels && card.labels.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-3">
-          {card.labels.map((label) => (
-            <div 
-              key={label.id} 
-              className={`h-1.5 w-8 rounded-full ${label.color} shadow-sm`} 
-              title={label.name}
-            />
-          ))}
+      {/* --- TOP HEADER ROW: LABELS + PRIORITY --- */}
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        {/* Label Pills */}
+        <div className="flex flex-wrap gap-1">
+          {card.labels && card.labels.length > 0 ? (
+            card.labels.map((label) => (
+              <div 
+                key={label.id} 
+                className={`h-1.5 w-6 rounded-full ${label.color} shadow-sm`} 
+                title={label.name}
+              />
+            ))
+          ) : (
+            // Tiny placeholder to keep layout consistent if no labels
+            <div className="h-1.5 w-6 bg-slate-100 rounded-full" />
+          )}
         </div>
-      )}
 
-      {/* Top Row: Priority & Timer Indicator */}
-      <div className="flex justify-between items-start mb-2">
-        <div className={`text-[10px] font-bold px-2 py-0.5 rounded border ${priorityColors[card.priority]}`}>
-          {card.priority}
+        {/* Priority Badge */}
+        <div className={`text-[9px] uppercase tracking-wider font-black px-2 py-0.5 rounded border ${priorityColors[card.priority] || priorityColors.Medium}`}>
+          {card.priority || 'Medium'}
         </div>
+      </div>
+
+      {/* --- TITLE & TIME --- */}
+      <div className="flex justify-between items-start gap-2 mb-3">
+        <h4 className="text-sm font-semibold text-slate-800 leading-snug group-hover:text-blue-600 transition-colors">
+          {card.title}
+        </h4>
+        
         {card.timeLogged > 0 && (
-          <div className="flex items-center gap-1 text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">
+          <div className="flex items-center gap-1 text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded shrink-0">
             <Clock size={10} />
             {formatTime(card.timeLogged)}
           </div>
         )}
       </div>
 
-      <h4 className="text-sm font-semibold text-slate-800 leading-snug mb-3 group-hover:text-blue-600 transition-colors">
-        {card.title}
-      </h4>
-
-      {/* Card Info/Badges */}
-      <div className="flex items-center gap-3 text-slate-400">
-        {card.description && <AlignLeft size={14} title="Has description" />}
-        
-        {card.checklist?.length > 0 && (
-          <div className={`flex items-center gap-1 text-[11px] font-bold px-1 rounded ${
-            card.checklist.every(i => i.completed) ? 'text-emerald-500 bg-emerald-50' : 'text-slate-500'
-          }`}>
-            <CheckSquare size={14} />
-            <span>
-              {card.checklist.filter(i => i.completed).length}/{card.checklist.length}
-            </span>
-          </div>
-        )}
+      {/* --- CARD FOOTER: BADGES & ACTIONS --- */}
+      <div className="flex items-center gap-3 text-slate-400 mt-2">
+        <div className="flex items-center gap-2">
+          {card.description && (
+            <AlignLeft size={14} className="text-slate-400" title="Description added" />
+          )}
+          
+          {card.checklist?.length > 0 && (
+            <div className={`flex items-center gap-1 text-[11px] font-bold px-1 rounded ${
+              card.checklist.every(i => i.completed) ? 'text-emerald-500 bg-emerald-50' : 'text-slate-500'
+            }`}>
+              <CheckSquare size={14} />
+              <span>
+                {card.checklist.filter(i => i.completed).length}/{card.checklist.length}
+              </span>
+            </div>
+          )}
+        </div>
 
         <div className="flex-1"></div>
         
@@ -80,15 +92,12 @@ const Card = ({ card, listId, boardId, onClick }) => {
               deleteCard(boardId, listId, card.id);
             }
           }}
-          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1"
+          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1 hover:bg-red-50 rounded"
         >
           <Trash2 size={14} />
         </button>
-      </div>
 
-      {/* Footer Avatar */}
-      <div className="mt-3 pt-3 border-t border-slate-50 flex justify-end">
-        <div className="w-6 h-6 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-500">
+        <div className="w-5 h-5 rounded-full bg-slate-200 border border-white flex items-center justify-center text-[9px] font-bold text-slate-500 shadow-sm">
           U
         </div>
       </div>
