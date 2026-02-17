@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useBoard } from '../../context/BoardContext';
-import { Plus, ArrowLeft, MoreHorizontal, Users, Filter } from 'lucide-react';
-import List from './List'; // We will create this next
+import { Plus, ArrowLeft, Users, Filter } from 'lucide-react';
+import List from './List';
 import { motion } from 'framer-motion';
 import CardDetailModal from '../modals/CardDetailModal';
 
@@ -9,6 +9,9 @@ const BoardView = () => {
   const { boards, activeBoardId, setActiveBoardId, addList } = useBoard();
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState('');
+  
+  // State to track which card is currently being edited in the modal
+  const [selectedCard, setSelectedCard] = useState(null); // format: { card, listId }
 
   // 1. Grab the current board data
   const board = boards.find((b) => b.id === activeBoardId);
@@ -57,7 +60,13 @@ const BoardView = () => {
       <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 flex gap-6 items-start custom-scrollbar">
         {/* Render existing lists */}
         {board.lists.map((list) => (
-          <List key={list.id} list={list} boardId={board.id} />
+          <List 
+            key={list.id} 
+            list={list} 
+            boardId={board.id} 
+            // This function is passed to List -> Card
+            onCardClick={(card) => setSelectedCard({ card, listId: list.id })} 
+          />
         ))}
 
         {/* --- ADD NEW LIST BUTTON / INPUT --- */}
@@ -102,6 +111,15 @@ const BoardView = () => {
           )}
         </div>
       </div>
+
+      {/* --- GLOBAL CARD DETAIL MODAL --- */}
+      <CardDetailModal 
+        isOpen={!!selectedCard} 
+        onClose={() => setSelectedCard(null)}
+        card={selectedCard?.card}
+        listId={selectedCard?.listId}
+        boardId={board.id}
+      />
     </div>
   );
 };

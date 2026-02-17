@@ -4,8 +4,8 @@ import { useBoard } from '../../context/BoardContext';
 import Card from './Card';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const List = ({ list, boardId }) => {
-  const { addCard, deleteList, renameList, setWipLimit } = useBoard();
+const List = ({ list, boardId, onCardClick }) => {
+  const { addCard, deleteList, renameList, setWIPLimit } = useBoard();
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [cardTitle, setCardTitle] = useState('');
   const [isEditingTitle, setIsEditingTitle] = useState(false);
@@ -24,7 +24,9 @@ const List = ({ list, boardId }) => {
   };
 
   const handleRename = () => {
-    renameList(boardId, list.id, listTitle);
+    if (listTitle.trim() && listTitle !== list.title) {
+      renameList(boardId, list.id, listTitle);
+    }
     setIsEditingTitle(false);
   };
 
@@ -39,7 +41,7 @@ const List = ({ list, boardId }) => {
           {isEditingTitle ? (
             <input 
               autoFocus
-              className="w-full bg-white px-2 py-1 rounded border border-blue-400 outline-none text-sm font-bold"
+              className="w-full bg-white px-2 py-1 rounded border border-blue-400 outline-none text-sm font-bold shadow-sm"
               value={listTitle}
               onChange={(e) => setListTitle(e.target.value)}
               onBlur={handleRename}
@@ -48,14 +50,15 @@ const List = ({ list, boardId }) => {
           ) : (
             <h3 
               onClick={() => setIsEditingTitle(true)}
-              className="font-bold text-slate-700 cursor-text hover:text-blue-600 transition-colors"
+              className="font-bold text-slate-700 cursor-text hover:text-blue-600 transition-colors truncate pr-2"
+              title="Click to rename"
             >
               {list.title}
             </h3>
           )}
           
           <div className="flex items-center gap-2 mt-1">
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm ${
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm transition-colors ${
               isOverLimit ? 'bg-red-500 text-white' : 'bg-slate-300 text-slate-700'
             }`}>
               {cardCount} / {list.wipLimit}
@@ -65,7 +68,11 @@ const List = ({ list, boardId }) => {
         </div>
         
         <button 
-          onClick={() => deleteList(boardId, list.id)}
+          onClick={() => {
+            if(window.confirm(`Delete "${list.title}" and all its cards?`)) {
+              deleteList(boardId, list.id);
+            }
+          }}
           className="text-slate-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
         >
           <Trash2 size={16} />
@@ -74,40 +81,68 @@ const List = ({ list, boardId }) => {
 
       {/* --- CARDS CONTAINER --- */}
       <div className="flex-1 overflow-y-auto px-3 pb-2 space-y-3 custom-scrollbar min-h-[50px]">
-        {list.cards.map((card, index) => (
-          <Card key={card.id} card={card} listId={list.id} boardId={boardId} />
+        {list.cards.map((card) => (
+          <Card 
+            key={card.id} 
+            card={card} 
+            listId={list.id} 
+            boardId={boardId} 
+            onClick={() => onCardClick(card)} // Passing the modal trigger down
+          />
         ))}
       </div>
 
       {/* --- ADD CARD FOOTER --- */}
       <div className="p-2">
-        {isAddingCard ? (
-          <motion.form 
-            initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            onSubmit={handleAddCard} className="bg-white p-3 rounded-xl shadow-sm border border-blue-200"
-          >
-            <textarea
-              autoFocus
-              placeholder="What needs to be done?"
-              className="w-full text-sm border-none focus:ring-0 resize-none p-0 h-16"
-              value={cardTitle}
-              onChange={(e) => setCardTitle(e.target.value)}
-            />
-            <div className="flex justify-between items-center mt-2">
-              <button type="submit" className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700">
-                Add Card
-              </button>
-              <button onClick={() => setIsAddingCard(false)} className="text-slate-400 hover:text-slate-600"><X size={18} /></button>
-            </div>
-          </motion.form>
-        ) : (
-          <button 
-            onClick={() => setIsAddingCard(true)}
-            className="w-full flex items-center gap-2 p-3 text-slate-500 hover:bg-slate-200/50 rounded-xl transition-all text-sm font-medium"
-          >
-            <Plus size={18} /> Add a card
-          </button>
-        )}
+        <AnimatePresence>
+          {isAddingCard ? (
+            <motion.form 
+              initial={{ opacity: 0, scale: 0.95 }} 
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              onSubmit={handleAddCard} 
+              className="bg-white p-3 rounded-xl shadow-sm border border-blue-200"
+            >
+              <textarea
+                autoFocus
+                placeholder="What needs to be done?"
+                className="w-full text-sm border-none focus:ring-0 resize-none p-0 h-16 text-slate-700 placeholder:text-slate-400"
+                value={cardTitle}
+                onChange={(e) => setCardTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleAddCard(e);
+                  }
+                }}
+              />
+              <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-50">
+                <button 
+                  type="submit" 
+                  disabled={!cardTitle.trim()}
+                  className="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-blue-700 disabled:opacity-50 transition-all"
+                >
+                  Add Card
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setIsAddingCard(false)} 
+                  className="text-slate-400 hover:text-slate-600 p-1"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </motion.form>
+          ) : (
+            <button 
+              onClick={() => setIsAddingCard(true)}
+              className="w-full flex items-center gap-2 p-3 text-slate-500 hover:bg-slate-200/60 rounded-xl transition-all text-sm font-medium group"
+            >
+              <Plus size={18} className="group-hover:text-blue-600" /> 
+              <span className="group-hover:text-slate-700">Add a card</span>
+            </button>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
