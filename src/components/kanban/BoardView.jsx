@@ -3,6 +3,7 @@ import { useBoard } from '../../context/BoardContext';
 import { Plus, ArrowLeft, MoreHorizontal, Users, Filter } from 'lucide-react';
 import List from './List'; // We will create this next
 import { motion } from 'framer-motion';
+import CardDetailModal from '../modals/CardDetailModal';
 
 const BoardView = () => {
   const { boards, activeBoardId, setActiveBoardId, addList } = useBoard();
