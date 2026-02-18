@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import Sidebar from './Sidebar';
-import Navbar from './Navbar';
-import BoardGallery from '../kanban/BoardGallery';
-import BoardView from '../kanban/BoardView';
-import { useBoard } from '../../context/BoardContext';
+import React, { useState } from "react";
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
+import BoardGallery from "../kanban/BoardGallery";
+import BoardView from "../kanban/BoardView";
+import { useBoard } from "../../context/BoardContext";
+import MembersView from "../members/MembersView";
 
 const MainLayout = () => {
-  const [activeTab, setActiveTab] = useState('kanban');
+  const [activeTab, setActiveTab] = useState("kanban");
   const { activeBoardId } = useBoard();
 
   return (
@@ -20,12 +21,16 @@ const MainLayout = () => {
 
         {/* 3. Dynamic Content Area */}
         <main className="flex-1 overflow-hidden">
-          {activeTab === 'kanban' ? (
-            // Toggle between Gallery and a specific Board
-            activeBoardId ? <BoardView /> : <BoardGallery />
-          ) : (
+          {activeTab === "kanban" &&
+            (activeBoardId ? <BoardView /> : <BoardGallery />)}
+
+          {activeTab === "members" && <MembersView />}
+
+          {activeTab !== "kanban" && activeTab !== "members" && (
             <div className="p-8">
-              <h1 className="text-2xl font-bold capitalize">{activeTab} Section</h1>
+              <h1 className="text-2xl font-bold capitalize">
+                {activeTab} Section
+              </h1>
               <p className="text-slate-500 mt-2">Coming soon!</p>
             </div>
           )}
