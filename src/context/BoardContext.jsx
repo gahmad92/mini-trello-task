@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { v4 } from "uuid";
+import { filter } from "motion/react-client";
 
 const BoardContext = createContext();
 
@@ -12,6 +13,18 @@ export const BoardProvider = ({ children }) => {
     "active-board-id",
     null,
   );
+
+  // ADDING TEAM MEMBERS STATE--------
+  // We use local storage so your team doesn't disappear when you refresh!
+
+  const [members, setMembers] = useLocalStorage("nura-task-members", [
+    {
+      id: 1,
+      name: "Nura AI",
+      role: "System assistant",
+      avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Nura",
+    },
+  ]);
 
   // Board actions
   const addBoard = (boardData) => {
@@ -191,6 +204,34 @@ export const BoardProvider = ({ children }) => {
     );
   };
 
+  // New member action-------
+  const addMember = (name, role) => {
+    const newMember = {
+      id: v4(),
+      name,
+      role,
+      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
+    };
+    setMembers((prev) => [...prev, newMember]);
+  };
+  const deleteMember = (memberId) => {
+    setMembers((prev) => prev.filter((m) => m.id !== memberId));
+    // clean this member from all cards it was assigned
+    setBoards((prevBoards) =>
+      prevBoards.map((board) => ({
+        ...board,
+        lists: board.lists.map((list) => ({
+          ...list,
+          cards: list.cards.map((card) => ({
+            ...card,
+            assignedMembers:
+              card.assignedMembers?.filter((id) => id !== memberId) || [],
+          })),
+        })),
+      })),
+    );
+  };
+
   // Global helper to update everything (Useful for onDragEnd)
 
   const updateBoardsRaw = (newBoardsArray) => {
@@ -200,6 +241,7 @@ export const BoardProvider = ({ children }) => {
     <BoardContext.Provider
       value={{
         boards,
+        members,
         activeBoardId,
         setActiveBoardId,
         addBoard,
@@ -212,6 +254,8 @@ export const BoardProvider = ({ children }) => {
         updateCard,
         deleteCard,
         updateBoardsRaw,
+        addMember,
+        deleteMember
       }}
     >
       {children}

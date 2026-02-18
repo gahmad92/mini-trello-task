@@ -34,7 +34,7 @@ const Navbar = () => {
           </div>
           <div className="hidden md:block">
             <p className="text-sm font-semibold text-slate-700 leading-none">Ghulam Haider</p>
-            <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">Owner</p>
+            <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">Productions</p>
           </div>
         </div>
       </div>
