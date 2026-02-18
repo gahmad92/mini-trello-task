@@ -30,10 +30,10 @@ const Navbar = () => {
 
         <div className="flex items-center gap-3 cursor-pointer hover:bg-slate-50 p-1 pr-3 rounded-lg transition-all">
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-xs shadow-md">
-            JS
+            GH
           </div>
           <div className="hidden md:block">
-            <p className="text-sm font-semibold text-slate-700 leading-none">John Smith</p>
+            <p className="text-sm font-semibold text-slate-700 leading-none">Ghulam Haider</p>
             <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold tracking-wider">Owner</p>
           </div>
         </div>

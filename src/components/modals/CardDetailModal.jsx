@@ -204,7 +204,7 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                         <button
                           key={p}
                           onClick={() => updateCard(boardId, listId, card.id, { priority: p })}
-                          className={`px-3 py-2 rounded-xl text-sm font-bold border transition-all ${
+                          className={`px-3 py-2 rounded-xl text-sm font-bold border transition-all cursor-pointer ${
                             card.priority === p 
                             ? 'bg-slate-800 text-white border-slate-800 shadow-lg' 
                             : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
