@@ -1,10 +1,10 @@
 import React from 'react';
-import { Clock, AlignLeft, CheckSquare, Trash2 } from 'lucide-react';
+import { Clock, AlignLeft, CheckSquare, Trash2, User } from 'lucide-react';
 import { useBoard } from '../../context/BoardContext';
 import { motion } from 'framer-motion';
 
 const Card = ({ card, listId, boardId, onClick }) => {
-  const { deleteCard } = useBoard();
+  const { deleteCard, members } = useBoard(); // Get members from context
 
   const priorityColors = {
     High: 'bg-rose-100 text-rose-600 border-rose-200',
@@ -18,6 +18,9 @@ const Card = ({ card, listId, boardId, onClick }) => {
     return mins > 0 ? `${mins}m` : `${seconds}s`;
   };
 
+  // Filter the global members list to only show those assigned to this specific card
+  const assignedMembers = members?.filter(m => card.assignedMembers?.includes(m.id)) || [];
+
   return (
     <motion.div
       layoutId={card.id}
@@ -28,7 +31,6 @@ const Card = ({ card, listId, boardId, onClick }) => {
     >
       {/* --- TOP HEADER ROW: LABELS + PRIORITY --- */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-        {/* Label Pills */}
         <div className="flex flex-wrap gap-1">
           {card.labels && card.labels.length > 0 ? (
             card.labels.map((label) => (
@@ -39,12 +41,10 @@ const Card = ({ card, listId, boardId, onClick }) => {
               />
             ))
           ) : (
-            // Tiny placeholder to keep layout consistent if no labels
             <div className="h-1.5 w-6 bg-slate-100 rounded-full" />
           )}
         </div>
 
-        {/* Priority Badge */}
         <div className={`text-[9px] uppercase tracking-wider font-black px-2 py-0.5 rounded border ${priorityColors[card.priority] || priorityColors.Medium}`}>
           {card.priority || 'Medium'}
         </div>
@@ -64,7 +64,7 @@ const Card = ({ card, listId, boardId, onClick }) => {
         )}
       </div>
 
-      {/* --- CARD FOOTER: BADGES & ACTIONS --- */}
+      {/* --- CARD FOOTER: BADGES & MEMBERS --- */}
       <div className="flex items-center gap-3 text-slate-400 mt-2">
         <div className="flex items-center gap-2">
           {card.description && (
@@ -85,6 +85,7 @@ const Card = ({ card, listId, boardId, onClick }) => {
 
         <div className="flex-1"></div>
         
+        {/* --- DELETE BUTTON --- */}
         <button 
           onClick={(e) => {
             e.stopPropagation(); 
@@ -97,8 +98,28 @@ const Card = ({ card, listId, boardId, onClick }) => {
           <Trash2 size={14} />
         </button>
 
-        <div className="w-5 h-5 rounded-full bg-slate-200 border border-white flex items-center justify-center text-[9px] font-bold text-slate-500 shadow-sm">
-          U
+        {/* --- ASSIGNEE AVATAR STACK --- */}
+        <div className="flex -space-x-2 overflow-hidden">
+          {assignedMembers.length > 0 ? (
+            assignedMembers.map((member) => (
+              <div 
+                key={member.id}
+                className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                title={member.name}
+              >
+                <img 
+                  src={member.avatar} 
+                  alt={member.name} 
+                  className="h-full w-full rounded-full object-cover"
+                />
+              </div>
+            ))
+          ) : (
+            /* Fallback placeholder when no one is assigned */
+            <div className="h-6 w-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+              <User size={12} />
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
