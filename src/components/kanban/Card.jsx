@@ -1,10 +1,10 @@
 import React from 'react';
-import { Clock, AlignLeft, CheckSquare, Trash2, User } from 'lucide-react';
+import { Clock, AlignLeft, CheckSquare, Trash2 } from 'lucide-react';
 import { useBoard } from '../../context/BoardContext';
 import { motion } from 'framer-motion';
 
 const Card = ({ card, listId, boardId, onClick }) => {
-  const { deleteCard, members } = useBoard(); // Get members from context
+  const { deleteCard, members } = useBoard(); // Get global members list
 
   const priorityColors = {
     High: 'bg-rose-100 text-rose-600 border-rose-200',
@@ -18,8 +18,8 @@ const Card = ({ card, listId, boardId, onClick }) => {
     return mins > 0 ? `${mins}m` : `${seconds}s`;
   };
 
-  // Filter the global members list to only show those assigned to this specific card
-  const assignedMembers = members?.filter(m => card.assignedMembers?.includes(m.id)) || [];
+  // NEW: Filter the global members to find only those assigned to this specific card
+  const assignedData = members.filter(m => card.assignedMembers?.includes(m.id));
 
   return (
     <motion.div
@@ -64,63 +64,59 @@ const Card = ({ card, listId, boardId, onClick }) => {
         )}
       </div>
 
-      {/* --- CARD FOOTER: BADGES & MEMBERS --- */}
-      <div className="flex items-center gap-3 text-slate-400 mt-2">
+      {/* --- CARD FOOTER: ASSIGNEES & BADGES --- */}
+      <div className="flex items-center justify-between mt-4">
+        
+        {/* LEFT: Overlapping Avatars */}
+        <div className="flex -space-x-2 overflow-hidden">
+          {assignedData.length > 0 ? (
+            assignedData.map((member) => (
+              <img
+                key={member.id}
+                src={member.avatar}
+                alt={member.name}
+                title={member.name}
+                className="inline-block h-6 w-6 rounded-full ring-2 ring-white object-cover bg-slate-100"
+              />
+            ))
+          ) : (
+            // Tiny placeholder if no one is assigned
+            <div className="h-6 w-6 rounded-full border border-dashed border-slate-200 flex items-center justify-center text-[8px] text-slate-300 font-bold">
+              ?
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT: Checklist/Description Icons + Delete Button */}
         <div className="flex items-center gap-2">
           {card.description && (
-            <AlignLeft size={14} className="text-slate-400" title="Description added" />
+            <AlignLeft size={14} className="text-slate-300" />
           )}
           
           {card.checklist?.length > 0 && (
-            <div className={`flex items-center gap-1 text-[11px] font-bold px-1 rounded ${
-              card.checklist.every(i => i.completed) ? 'text-emerald-500 bg-emerald-50' : 'text-slate-500'
+            <div className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+              card.checklist.every(i => i.completed) ? 'text-emerald-500 bg-emerald-50' : 'text-slate-400 bg-slate-50'
             }`}>
-              <CheckSquare size={14} />
+              <CheckSquare size={12} />
               <span>
                 {card.checklist.filter(i => i.completed).length}/{card.checklist.length}
               </span>
             </div>
           )}
+
+          <button 
+            onClick={(e) => {
+              e.stopPropagation(); 
+              if (window.confirm("Delete this task?")) {
+                deleteCard(boardId, listId, card.id);
+              }
+            }}
+            className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all ml-1 p-1 hover:bg-red-50 rounded"
+          >
+            <Trash2 size={14} />
+          </button>
         </div>
 
-        <div className="flex-1"></div>
-        
-        {/* --- DELETE BUTTON --- */}
-        <button 
-          onClick={(e) => {
-            e.stopPropagation(); 
-            if (window.confirm("Delete this task?")) {
-              deleteCard(boardId, listId, card.id);
-            }
-          }}
-          className="text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1 hover:bg-red-50 rounded"
-        >
-          <Trash2 size={14} />
-        </button>
-
-        {/* --- ASSIGNEE AVATAR STACK --- */}
-        <div className="flex -space-x-2 overflow-hidden">
-          {assignedMembers.length > 0 ? (
-            assignedMembers.map((member) => (
-              <div 
-                key={member.id}
-                className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                title={member.name}
-              >
-                <img 
-                  src={member.avatar} 
-                  alt={member.name} 
-                  className="h-full w-full rounded-full object-cover"
-                />
-              </div>
-            ))
-          ) : (
-            /* Fallback placeholder when no one is assigned */
-            <div className="h-6 w-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
-              <User size={12} />
-            </div>
-          )}
-        </div>
       </div>
     </motion.div>
   );
