@@ -206,14 +206,14 @@ export const BoardProvider = ({ children }) => {
 
   // New member action-------
   const addMember = (name, role) => {
-    const newMember = {
-      id: v4(),
-      name,
-      role,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
-    };
-    setMembers((prev) => [...prev, newMember]);
+  const newMember = {
+    id: v4(), // Consistent UUID generation
+    name: name,
+    role: role,
+    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
   };
+  setMembers((prev) => [...prev, newMember]);
+};
   const deleteMember = (memberId) => {
     setMembers((prev) => prev.filter((m) => m.id !== memberId));
     // clean this member from all cards it was assigned
