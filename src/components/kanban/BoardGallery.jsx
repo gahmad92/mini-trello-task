@@ -5,6 +5,7 @@ import { useBoard } from '../../context/BoardContext';
 
 const colors = [
   { name: 'Blue', class: 'bg-blue-500' },
+  {name:"Indigo", class:"bg-indigo-500"},
   { name: 'Purple', class: 'bg-purple-600' },
   { name: 'Emerald', class: 'bg-emerald-500' },
   { name: 'Rose', class: 'bg-rose-500' },

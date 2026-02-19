@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -8,6 +8,7 @@ import {
   AlertCircle,
   RotateCcw,
   Play,
+  Pause,
   Tag,
   Plus,
   Users, // Added for members section
@@ -27,6 +28,29 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
   const [newLabelName, setNewLabelName] = useState("");
   const [selectedColor, setSelectedColor] = useState("bg-blue-500");
 
+  // Stopwatch state
+  const [isRunning, setIsRunning] = useState(false);
+  const [seconds, setSeconds] = useState(card?.timeLogged || 0);
+  const intervalRef = useRef(null);
+  // stop watch logic
+  useEffect(() => {
+    if (card) {
+      setSeconds(card.timeLogged || 0);
+      setIsRunning(false);
+    }
+  }, [card]);
+  useEffect(() => {
+    if (isRunning) {
+      intervalRef.current = setInterval(() => {
+        setSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      clearInterval(intervalRef.current);
+    }
+
+    return () => clearInterval(intervalRef.current);
+  }, [isRunning]);
+  //--------
   useEffect(() => {
     if (card) {
       setDescription(card.description || "");
@@ -44,15 +68,16 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
     "bg-amber-500",
     "bg-purple-500",
     "bg-slate-500",
+    "bg-indigo-500",
   ];
 
   // --- MEMBER ASSIGNMENT LOGIC ---
   const toggleMember = (memberId) => {
     const currentAssigned = card.assignedMembers || [];
     const isAlreadyAssigned = currentAssigned.includes(memberId);
-    
+
     const updatedMembers = isAlreadyAssigned
-      ? currentAssigned.filter(id => id !== memberId)
+      ? currentAssigned.filter((id) => id !== memberId)
       : [...currentAssigned, memberId];
 
     updateCard(boardId, listId, card.id, { assignedMembers: updatedMembers });
@@ -140,7 +165,6 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                 {/* --- LEFT COLUMN: MAIN CONTENT --- */}
                 <div className="md:col-span-2 space-y-10">
-                  
                   {/* TIME TRACKER */}
                   <section className="bg-blue-600 rounded-2xl p-6 shadow-xl shadow-blue-100 text-white">
                     <div className="flex items-center justify-between">
@@ -153,15 +177,21 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                             Time Tracked
                           </p>
                           <p className="text-3xl font-mono font-black">
-                            {formatTime(card.timeLogged || 0)}
+                            {/* {formatTime(card.timeLogged || 0)} */}
+                            {formatTime(seconds)}
                           </p>
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <button className="bg-white text-blue-600 p-3 rounded-xl hover:bg-blue-50 shadow-lg transition-all active:scale-95">
-                          <Play size={20} fill="currentColor" />
+                        <button onClick={() => setIsRunning((prev) => !prev)}>
+                          {isRunning ? <Pause size={20} /> : <Play size={20} />}
                         </button>
-                        <button className="bg-white/10 text-white p-3 rounded-xl hover:bg-white/20 border border-white/20 transition-all">
+                        <button
+                          onClick={() => {
+                            setIsRunning(false);
+                            setSeconds(0);
+                          }}
+                        >
                           <RotateCcw size={20} />
                         </button>
                       </div>
@@ -172,7 +202,9 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                   <section>
                     <div className="flex items-center gap-2 mb-4 text-slate-800">
                       <AlignLeft size={18} className="text-blue-500" />
-                      <h3 className="font-black text-sm uppercase tracking-wider">Description</h3>
+                      <h3 className="font-black text-sm uppercase tracking-wider">
+                        Description
+                      </h3>
                     </div>
                     <textarea
                       className="w-full min-h-[140px] bg-slate-50 border border-slate-200 rounded-2xl p-4 text-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-400"
@@ -190,10 +222,13 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2 text-slate-800">
                         <CheckSquare size={18} className="text-blue-500" />
-                        <h3 className="font-black text-sm uppercase tracking-wider">Checklist</h3>
+                        <h3 className="font-black text-sm uppercase tracking-wider">
+                          Checklist
+                        </h3>
                       </div>
                       <span className="text-xs font-black text-blue-600 bg-blue-50 px-2 py-1 rounded-md">
-                        {checklist.filter((i) => i.completed).length} / {checklist.length} DONE
+                        {checklist.filter((i) => i.completed).length} /{" "}
+                        {checklist.length} DONE
                       </span>
                     </div>
                     <div className="w-full bg-slate-100 h-2 rounded-full mb-6 overflow-hidden">
@@ -245,7 +280,6 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
 
                 {/* --- RIGHT COLUMN: SIDEBAR --- */}
                 <div className="space-y-10">
-                  
                   {/* ASSIGNEES SECTION */}
                   <section>
                     <div className="flex items-center gap-2 mb-4 text-slate-400 text-[11px] font-black uppercase tracking-widest">
@@ -253,7 +287,9 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                     </div>
                     <div className="flex flex-wrap gap-3">
                       {members.map((member) => {
-                        const isAssigned = card.assignedMembers?.includes(member.id);
+                        const isAssigned = card.assignedMembers?.includes(
+                          member.id,
+                        );
                         return (
                           <button
                             key={member.id}
@@ -261,14 +297,14 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                             className="relative group transition-transform active:scale-90"
                             title={member.name}
                           >
-                            <img 
-                              src={member.avatar} 
-                              alt={member.name} 
+                            <img
+                              src={member.avatar}
+                              alt={member.name}
                               className={`w-10 h-10 rounded-full border-2 transition-all shadow-sm ${
-                                isAssigned 
-                                  ? 'border-blue-500 ring-4 ring-blue-50' 
-                                  : 'border-white opacity-40 grayscale hover:opacity-100 hover:grayscale-0'
-                              }`} 
+                                isAssigned
+                                  ? "border-blue-500 ring-4 ring-blue-50"
+                                  : "border-white opacity-40 grayscale hover:opacity-100 hover:grayscale-0"
+                              }`}
                             />
                             {isAssigned && (
                               <div className="absolute -top-1 -right-1 bg-blue-600 text-white rounded-full p-0.5 border-2 border-white shadow-sm">
@@ -282,7 +318,7 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                           </button>
                         );
                       })}
-                      <button 
+                      <button
                         className="w-10 h-10 rounded-full border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300 hover:border-blue-400 hover:text-blue-500 transition-all bg-slate-50/50"
                         title="Manage Team"
                       >
