@@ -98,7 +98,8 @@ npm run dev
 ### Step 4 Build for production
 npm run build
 
-PROJECT STRUCTURE-----
+mini-trello — Project Structure
+
 mini-trello/
 ├── src/
 │   ├── components/
@@ -137,6 +138,11 @@ mini-trello/
 ├── tailwind.config.js                       # TailwindCSS configuration
 ├── package.json                             # Dependencies and scripts
 └── README.md                                # This file
+
+
+
+
+
 
 this appplication uses a localstorage hook useLocalStorage
 localstorage keys --
