@@ -5,6 +5,7 @@ import BoardGallery from "../kanban/BoardGallery";
 import BoardView from "../kanban/BoardView";
 import { useBoard } from "../../context/BoardContext";
 import MembersView from "../members/MembersView";
+import DashboardView from "../dashboard/DashboardView"
 
 const MainLayout = () => {
   const [activeTab, setActiveTab] = useState("kanban");
@@ -20,7 +21,7 @@ const MainLayout = () => {
         <Navbar />
 
         {/* 3. Dynamic Content Area */}
-        <main className="flex-1 overflow-hidden">
+        {/* <main className="flex-1 overflow-hidden">
           {activeTab === "kanban" &&
             (activeBoardId ? <BoardView /> : <BoardGallery />)}
 
@@ -34,6 +35,19 @@ const MainLayout = () => {
               <p className="text-slate-500 mt-2">Coming soon!</p>
             </div>
           )}
+        </main> */}
+        <main className="flex-1 overflow-hidden">
+          {/* Dashboard Tab */}
+          {activeTab === "dashboard" && <DashboardView />}
+
+          {/* Kanban Tab Logic */}
+          {activeTab === "kanban" && (
+            activeBoardId ? <BoardView /> : <BoardGallery />
+          )}
+
+          {activeTab === "members" && <MembersView />}
+          
+          {/* Other tabs remain the same... */}
         </main>
       </div>
     </div>

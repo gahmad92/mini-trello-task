@@ -111,14 +111,14 @@ const Card = ({ card, listId, boardId, onClick }) => {
               </span>
             </div>
           )}
-
+          {/* card description */}
           {card.description && (
             <AlignLeft size={14} className="text-slate-300" />
           )}
           {card.description && (
             <AlignLeft size={14} className="text-slate-300" />
           )}
-
+          {/* checklist */}
           {card.checklist?.length > 0 && (
             <div
               className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
