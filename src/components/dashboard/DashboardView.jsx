@@ -48,7 +48,7 @@ const DashboardView = () => {
   }, [allData.cards, searchQuery]);
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
+    <div className="h-full overflow-y-auto p-8 bg-slate-50/50">
       {/* Header with Search */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
