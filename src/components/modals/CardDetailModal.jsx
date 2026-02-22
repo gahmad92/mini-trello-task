@@ -15,6 +15,7 @@ import {
   Check, // Added for selection indicator
 } from "lucide-react";
 import { useBoard } from "../../context/BoardContext";
+import { Calendar } from "lucide-react";
 
 const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
   const { updateCard, members } = useBoard(); // Pull members from context
@@ -324,6 +325,37 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                       >
                         <Plus size={16} />
                       </button>
+                    </div>
+                  </section>
+                  {/* DUE DATE PICKER */}
+                  <section>
+                    <div className="flex items-center gap-2 mb-4 text-slate-400 text-[11px] font-black uppercase tracking-widest">
+                      <Calendar size={14} /> Due Date
+                    </div>
+                    <div className="relative group">
+                      <input
+                        type="date"
+                        value={card.dueDate || ""}
+                        onChange={(e) =>
+                          updateCard(boardId, listId, card.id, {
+                            dueDate: e.target.value,
+                          })
+                        }
+                        className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none transition-all cursor-pointer hover:border-slate-300"
+                      />
+                      {/* Optional: Add a "Clear" button if a date is set */}
+                      {card.dueDate && (
+                        <button
+                          onClick={() =>
+                            updateCard(boardId, listId, card.id, {
+                              dueDate: null,
+                            })
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-300 hover:text-rose-500"
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
                     </div>
                   </section>
 

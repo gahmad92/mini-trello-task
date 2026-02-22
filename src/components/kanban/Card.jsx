@@ -1,15 +1,16 @@
-import React from 'react';
-import { Clock, AlignLeft, CheckSquare, Trash2 } from 'lucide-react';
-import { useBoard } from '../../context/BoardContext';
-import { motion } from 'framer-motion';
+import React from "react";
+import { Clock, AlignLeft, CheckSquare, Trash2 } from "lucide-react";
+import { useBoard } from "../../context/BoardContext";
+import { motion } from "framer-motion";
+import { Calendar } from "lucide-react";
 
 const Card = ({ card, listId, boardId, onClick }) => {
   const { deleteCard, members } = useBoard(); // Get global members list
 
   const priorityColors = {
-    High: 'bg-rose-100 text-rose-600 border-rose-200',
-    Medium: 'bg-amber-100 text-amber-600 border-amber-200',
-    Low: 'bg-emerald-100 text-emerald-600 border-emerald-200',
+    High: "bg-rose-100 text-rose-600 border-rose-200",
+    Medium: "bg-amber-100 text-amber-600 border-amber-200",
+    Low: "bg-emerald-100 text-emerald-600 border-emerald-200",
   };
 
   const formatTime = (seconds) => {
@@ -19,7 +20,9 @@ const Card = ({ card, listId, boardId, onClick }) => {
   };
 
   // NEW: Filter the global members to find only those assigned to this specific card
-  const assignedData = members.filter(m => card.assignedMembers?.includes(m.id));
+  const assignedData = members.filter((m) =>
+    card.assignedMembers?.includes(m.id),
+  );
 
   return (
     <motion.div
@@ -34,9 +37,9 @@ const Card = ({ card, listId, boardId, onClick }) => {
         <div className="flex flex-wrap gap-1">
           {card.labels && card.labels.length > 0 ? (
             card.labels.map((label) => (
-              <div 
-                key={label.id} 
-                className={`h-1.5 w-6 rounded-full ${label.color} shadow-sm`} 
+              <div
+                key={label.id}
+                className={`h-1.5 w-6 rounded-full ${label.color} shadow-sm`}
                 title={label.name}
               />
             ))
@@ -45,8 +48,10 @@ const Card = ({ card, listId, boardId, onClick }) => {
           )}
         </div>
 
-        <div className={`text-[9px] uppercase tracking-wider font-black px-2 py-0.5 rounded border ${priorityColors[card.priority] || priorityColors.Medium}`}>
-          {card.priority || 'Medium'}
+        <div
+          className={`text-[9px] uppercase tracking-wider font-black px-2 py-0.5 rounded border ${priorityColors[card.priority] || priorityColors.Medium}`}
+        >
+          {card.priority || "Medium"}
         </div>
       </div>
 
@@ -55,7 +60,7 @@ const Card = ({ card, listId, boardId, onClick }) => {
         <h4 className="text-sm font-semibold text-slate-800 leading-snug group-hover:text-blue-600 transition-colors">
           {card.title}
         </h4>
-        
+
         {card.timeLogged > 0 && (
           <div className="flex items-center gap-1 text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded shrink-0">
             <Clock size={10} />
@@ -66,7 +71,6 @@ const Card = ({ card, listId, boardId, onClick }) => {
 
       {/* --- CARD FOOTER: ASSIGNEES & BADGES --- */}
       <div className="flex items-center justify-between mt-4">
-        
         {/* LEFT: Overlapping Avatars */}
         <div className="flex -space-x-2 overflow-hidden">
           {assignedData.length > 0 ? (
@@ -89,24 +93,51 @@ const Card = ({ card, listId, boardId, onClick }) => {
 
         {/* RIGHT: Checklist/Description Icons + Delete Button */}
         <div className="flex items-center gap-2">
-          {card.description && (
-            <AlignLeft size={14} className="text-slate-300" />
-          )}
-          
-          {card.checklist?.length > 0 && (
-            <div className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
-              card.checklist.every(i => i.completed) ? 'text-emerald-500 bg-emerald-50' : 'text-slate-400 bg-slate-50'
-            }`}>
-              <CheckSquare size={12} />
+          {/* --- NEW: DATE BADGE --- */}
+          {card.dueDate && (
+            <div
+              className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md border ${
+                new Date(card.dueDate) < new Date().setHours(0, 0, 0, 0)
+                  ? "bg-rose-50 text-rose-500 border-rose-100" // Overdue
+                  : "bg-slate-50 text-slate-500 border-slate-100" // Upcoming
+              }`}
+            >
+              <Calendar size={10} />
               <span>
-                {card.checklist.filter(i => i.completed).length}/{card.checklist.length}
+                {new Date(card.dueDate).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                })}
               </span>
             </div>
           )}
 
-          <button 
+          {card.description && (
+            <AlignLeft size={14} className="text-slate-300" />
+          )}
+          {card.description && (
+            <AlignLeft size={14} className="text-slate-300" />
+          )}
+
+          {card.checklist?.length > 0 && (
+            <div
+              className={`flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
+                card.checklist.every((i) => i.completed)
+                  ? "text-emerald-500 bg-emerald-50"
+                  : "text-slate-400 bg-slate-50"
+              }`}
+            >
+              <CheckSquare size={12} />
+              <span>
+                {card.checklist.filter((i) => i.completed).length}/
+                {card.checklist.length}
+              </span>
+            </div>
+          )}
+
+          <button
             onClick={(e) => {
-              e.stopPropagation(); 
+              e.stopPropagation();
               if (window.confirm("Delete this task?")) {
                 deleteCard(boardId, listId, card.id);
               }
@@ -116,7 +147,6 @@ const Card = ({ card, listId, boardId, onClick }) => {
             <Trash2 size={14} />
           </button>
         </div>
-
       </div>
     </motion.div>
   );
