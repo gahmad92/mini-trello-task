@@ -1,4 +1,5 @@
 # 📋 Mini Trello - Task Management Application
+https://kanban-nura.netlify.app/
 
 A modern, feature-rich Kanban board application built with React and Vite. Manage multiple boards, track team members, log time, and organize tasks with a drag-and-drop interface. All data is persisted to browser localStorage for seamless offline functionality.
 
