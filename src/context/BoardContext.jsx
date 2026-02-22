@@ -231,6 +231,35 @@ export const BoardProvider = ({ children }) => {
       })),
     );
   };
+  // Time Tracker -----
+
+  const toggleTimer = (boardId, listId, cardId) => {
+  setBoards((prev) =>
+    prev.map((board) => {
+      if (board.id === boardId) {
+        return {
+          ...board,
+          lists: board.lists.map((list) => {
+            if (list.id === listId) {
+              return {
+                ...list,
+                cards: list.cards.map((card) =>
+                  // Toggle the specific card and ensure others are off (optional)
+                  card.id === cardId 
+                    ? { ...card, isTracking: !card.isTracking } 
+                    : card
+                ),
+              };
+            }
+            return list;
+          }),
+        };
+      }
+      return board;
+    })
+  );
+};
+
 
   // Global helper to update everything (Useful for onDragEnd)
 
@@ -255,7 +284,8 @@ export const BoardProvider = ({ children }) => {
         deleteCard,
         updateBoardsRaw,
         addMember,
-        deleteMember
+        deleteMember,
+        toggleTimer
       }}
     >
       {children}

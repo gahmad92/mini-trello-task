@@ -7,14 +7,14 @@ import { useBoard } from "../../context/BoardContext";
 import MembersView from "../members/MembersView";
 import DashboardView from "../dashboard/DashboardView"
 
-const MainLayout = () => {
+const MainLayout = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState("kanban");
   const { activeBoardId } = useBoard();
 
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden">
       {/* 1. Static Sidebar */}
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab}  onLogout={onLogout}/>
 
       <div className="flex-1 flex flex-col min-w-0">
         {/* 2. Top Navbar */}

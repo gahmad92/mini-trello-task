@@ -39,7 +39,7 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
       setSeconds(card.timeLogged || 0);
       setIsRunning(false);
     }
-  }, [card]);
+  }, [card?.id]);
   useEffect(() => {
     if (isRunning) {
       intervalRef.current = setInterval(() => {
@@ -52,12 +52,12 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
     return () => clearInterval(intervalRef.current);
   }, [isRunning]);
   //--------
+  // Save time to context when paused
   useEffect(() => {
-    if (card) {
-      setDescription(card.description || "");
-      setChecklist(card.checklist || []);
+    if (!isRunning && card && seconds !== card.timeLogged) {
+      updateCard(boardId, listId, card.id, { timeLogged: seconds });
     }
-  }, [card]);
+  }, [isRunning]);
 
   if (!card) return null;
 
@@ -155,7 +155,10 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                 </h2>
               </div>
               <button
-                onClick={onClose}
+                onClick={() => {
+                  updateCard(boardId, listId, card.id, { timeLogged: seconds });
+                  onClose();
+                }}
                 className="p-2 hover:bg-slate-200 rounded-full transition-colors"
               >
                 <X size={20} className="text-slate-500" />
@@ -191,6 +194,9 @@ const CardDetailModal = ({ isOpen, onClose, card, listId, boardId }) => {
                           onClick={() => {
                             setIsRunning(false);
                             setSeconds(0);
+                            updateCard(boardId, listId, card.id, {
+                              timeLogged: 0,
+                            });
                           }}
                         >
                           <RotateCcw size={20} />
