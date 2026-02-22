@@ -6,7 +6,7 @@ const menuItems = [
   { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={20} /> },
   { id: "kanban", label: "Kanban Board", icon: <Kanban size={20} /> },
   { id: "members", label: "Members", icon: <Users size={20} /> },
-  { id: "settings", label: "Settings", icon: <Settings size={20} /> },
+  { id: "settings", label: "Settings soon", icon: <Settings size={20} /> },
 ];
 
 const Sidebar = ({ activeTab, setActiveTab, onLogout }) => {
